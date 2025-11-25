@@ -1,0 +1,4 @@
+name: MobDuper
+version: '1.0-SNAPSHOT'
+main: com.mariomastr.mobDuper.MobDuper
+api-version: '1.21'
