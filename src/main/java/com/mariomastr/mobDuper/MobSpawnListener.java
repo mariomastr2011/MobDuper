@@ -1,13 +1,10 @@
 package com.mariomastr.mobDuper;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.World;
-
-import javax.swing.text.html.parser.Entity;
 
 public class MobSpawnListener implements Listener {
     @EventHandler
