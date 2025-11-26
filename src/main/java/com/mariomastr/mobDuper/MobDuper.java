@@ -7,7 +7,8 @@ public final class MobDuper extends JavaPlugin {
     @Override
     public void onEnable() {
         // Plugin startup logic
-        getServer().getPluginManager().registerEvents(new MobSpawnListener(), this);
+        saveDefaultConfig();
+        getServer().getPluginManager().registerEvents(new MobSpawnListener(this), this);
     }
 
     @Override
