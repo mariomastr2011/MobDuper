@@ -22,7 +22,7 @@ public class MobSpawnListener implements Listener {
         CreatureSpawnEvent.SpawnReason reason = event.getSpawnReason();
 
         if(reason != CreatureSpawnEvent.SpawnReason.CUSTOM && type != EntityType.SLIME){
-            for(int i = 0; i <= plugin.getConfig().getInt("mob_count") - 1; i++){
+            for(int i = 0; i <= plugin.getConfig().getInt("mob_count"); i++){
                 World world = event.getEntity().getWorld();
                 assert type.getEntityClass() != null;
                 world.spawn(entity.getLocation(), type.getEntityClass());
