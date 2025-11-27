@@ -9,11 +9,15 @@ import org.bukkit.World;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.plugin.Plugin;
 
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
+import java.util.UUID;
 
 public class SpawnListener implements Listener {
 
     private final Plugin plugin;
+    public final Set<UUID> duplicates = new HashSet<>();
 
 
     public SpawnListener(Plugin plugin){
@@ -43,7 +47,8 @@ public class SpawnListener implements Listener {
 
         double range = plugin.getConfig().getInt("dupe_projectiles.spawn_range");
 
-        if((event.getEntityType() == EntityType.ENDER_PEARL && !plugin.getConfig().getBoolean("dupe_projectiles.do_ender_pearl")) || !plugin.getConfig().getBoolean("dupe_projectiles.enabled")) return;
+        if((event.getEntityType() == EntityType.ENDER_PEARL && !plugin.getConfig().getBoolean("dupe_projectiles.do_ender_pearl"))
+                || !plugin.getConfig().getBoolean("dupe_projectiles.enabled")) return;
 
 
         if(event.getEntityType() == EntityType.ENDER_PEARL && projectile.getShooter() instanceof  Player player){
@@ -57,7 +62,37 @@ public class SpawnListener implements Listener {
                 }
             }, plugin.getConfig().getInt("dupe_projectiles.spawn_delay"));
         }
+
+        if(event.getEntityType() != EntityType.ENDER_PEARL){
+            if(duplicates.contains(event.getEntity().getUniqueId())) return;
+
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                for(int i = 0; i < plugin.getConfig().getInt("dupe_projectiles.count"); i++){
+                    World world = event.getEntity().getWorld();
+                    Class<? extends Entity> projectileClass = projectile.getType().getEntityClass();
+                    if(projectileClass == null) return;
+
+                    Projectile dup = world.spawn(getLocation(range, world, projectile),
+                            projectileClass.asSubclass(Projectile.class),
+                            entity -> {
+                                duplicates.add(entity.getUniqueId());
+                            });
+
+
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                        duplicates.remove(dup.getUniqueId());
+                    }, 200);
+
+                    dup.setVelocity(projectile.getVelocity());
+
+                     if(projectile.getShooter() instanceof LivingEntity shooter){
+                         dup.setShooter(shooter);
+                     }
+                }
+            }, plugin.getConfig().getInt("dupe_projectiles.spawn_delay"));
+        }
     }
+
 
     private static Location getLocation(double range, World world, Projectile projectile) {
         Random random = new Random();
