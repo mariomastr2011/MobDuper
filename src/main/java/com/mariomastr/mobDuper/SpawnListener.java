@@ -29,14 +29,21 @@ public class SpawnListener implements Listener {
         LivingEntity entity = event.getEntity();
         EntityType type = event.getEntityType();
         CreatureSpawnEvent.SpawnReason reason = event.getSpawnReason();
+        double range = plugin.getConfig().getInt("dupe_mobs.range");
 
         if(!plugin.getConfig().getBoolean("dupe_mobs.enabled")) return;
 
         if(reason != CreatureSpawnEvent.SpawnReason.CUSTOM && type != EntityType.SLIME){
-            for(int i = 0; i < plugin.getConfig().getInt("dupe_mobs.count"); i++){
-                World world = event.getEntity().getWorld();
-                assert type.getEntityClass() != null;
-                world.spawn(entity.getLocation(), type.getEntityClass());
+            World world = event.getEntity().getWorld();
+            assert type.getEntityClass() != null;
+
+            for(int i = 0; i < plugin.getConfig().getInt("dupe_mobs.count") - 1; i++){
+                if(plugin.getConfig().getBoolean("dupe_mobs.randomize_mob_location")){
+                    world.spawn(getLocationMob(range, entity.getWorld(), entity), type.getEntityClass());
+                }
+                else{
+                    world.spawn(entity.getLocation(), type.getEntityClass());
+                }
             }
         }
     }
@@ -53,9 +60,9 @@ public class SpawnListener implements Listener {
 
         if(event.getEntityType() == EntityType.ENDER_PEARL && projectile.getShooter() instanceof  Player player){
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                for(int i = 0; i < plugin.getConfig().getInt("dupe_projectiles.count"); i++){
+                for(int i = 0; i < plugin.getConfig().getInt("dupe_projectiles.count") - 1; i++){
                     World world = event.getEntity().getWorld();
-                    Location location = getLocation(range, world, projectile);
+                    Location location = getLocationProjectile(range, world, projectile);
                     EnderPearl pearl = world.spawn(location, EnderPearl.class);
                     pearl.setShooter(player);
                     pearl.setVelocity(projectile.getVelocity());
@@ -67,12 +74,12 @@ public class SpawnListener implements Listener {
             if(duplicates.contains(event.getEntity().getUniqueId())) return;
 
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                for(int i = 0; i < plugin.getConfig().getInt("dupe_projectiles.count"); i++){
+                for(int i = 0; i < plugin.getConfig().getInt("dupe_projectiles.count") - 1; i++){
                     World world = event.getEntity().getWorld();
                     Class<? extends Entity> projectileClass = projectile.getType().getEntityClass();
                     if(projectileClass == null) return;
 
-                    Projectile dup = world.spawn(getLocation(range, world, projectile),
+                    Projectile dup = world.spawn(getLocationProjectile(range, world, projectile),
                             projectileClass.asSubclass(Projectile.class),
                             entity -> {
                                 duplicates.add(entity.getUniqueId());
@@ -94,7 +101,7 @@ public class SpawnListener implements Listener {
     }
 
 
-    private static Location getLocation(double range, World world, Projectile projectile) {
+    private static Location getLocationProjectile(double range, World world, Projectile projectile) {
         Random random = new Random();
         double offsetX = (random.nextDouble()  * 2 * range) - range;
         double offsetY = (random.nextDouble()  * 2 * range) - range;
@@ -104,5 +111,17 @@ public class SpawnListener implements Listener {
                 projectile.getLocation().getX() + offsetX,
                 projectile.getLocation().getY() + offsetY,
                 projectile.getLocation().getZ() + offsetZ);
+    }
+
+    private static Location getLocationMob(double range, World world, Entity entity) {
+        Random random = new Random();
+        double offsetX = (random.nextDouble()  * 2 * range) - range;
+        double offsetY = (random.nextDouble()  * 2 * range) - range;
+        double offsetZ = (random.nextDouble()  * 2 * range) - range;
+        return new Location(
+                world,
+                entity.getLocation().getX() + offsetX,
+                entity.getLocation().getY() + offsetY,
+                entity.getLocation().getZ() + offsetZ);
     }
 }

@@ -1,15 +1,21 @@
-#Whether to dupe mobs ot not and how many extra mobs should spawn mob.
 dupe_mobs:
+  #whether to dupe mobs or not
   enabled: true
-  count: 9
+  #number of mobs to spawn per normal mob
+  count: 10
+  #whether to randomize mob location, CAN SPAWN MOBS UNDERGROUND
+  randomize_mob_location: false
+  #mob spawn range
+  range: 2
 
-#Whether to dupe projectiles or not and how many extra of each
 dupe_projectiles:
+  #whether to dupe projectiles or not
   enabled: true
-  count: 9
+  #amount of projectile that should spawn when a projectile is launched
+  count: 10
   #whether to dupe ender pearls or not
   do_ender_pearl: false
   #range of how far a projectile can spawn from the main projectile
   spawn_range: 1.5
   #delay from launching of projectile to the spawning of new ones (in ticks)
-  spawn_delay: 10
+  spawn_delay: 2
